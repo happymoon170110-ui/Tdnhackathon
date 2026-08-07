@@ -23,11 +23,11 @@ A rapid AI integration project developed in 6 hours for TDNHackathon, deploying 
 * Design and Presentation: Canva
 
 ## Core Team & Contribution Breakdown
-* Nguyen Dang Minh - Team Leader, Lead AI Architect, and Co-Presenter
+* Nguyen Dang Minh - Team Leader, Lead AI Architect, Vibe coder,and Co-Presenter
     * Responsibilities: Spearheaded the entire project development; engineered the core AI pipeline (YOLOv8 deployment, camera feed processing, and Singapore's Cosnos model integration); independently architecture the system integration post-hackathon to unify the web UI and simulation modules into a single framework
-* Nguyen Viet Hung - Web UI/UX Designer and Co-Presenter
+* Nguyen Viet Hung - Web UI/UX Designer, vibe coder, and Co-Presenter
     * Responsibilities: Architected the main web interface, designed custom feature modules, and integrated live external APIs for weather and road surface conditions.
-* Tran Huu Tho - Simulation Engineer (Part 2) and Co-Presenter
+* Tran Huu Tho - Simulation Engineer (Part 2), vibe coder, and Co-Presenter
     * Responsibilities: Designed and developed the independent traffic congestion simulation system analyzing vehicle quantities versus velocity.
 * Du My Nghi - Researcher, Presentation Builder, and Co-Presenter
     * Responsibilities: Conducted background research on traffic data, structured analytical findings, and co-built the presentation.
