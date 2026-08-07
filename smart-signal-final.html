@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Signal Preview'</title>
+  <style>
+    :root {
+      --bg-deep: #0B0F14;
+      --panel: #141B22;
+      --panel-2: #1B242D;
+      --border: #26313C;
+      --text-primary: #ECEAE3;
+      --text-muted: #8B94A0;
+      --text-dim: #5C6672;
+      --signal-red: #FF4757;
+      --signal-amber: #FFC53D;
+      --signal-green: #2ED9A6;
+      --emergency: #FF3B6E;
+      --accent: #4FD1FF;
+      --asphalt: #2A323C;
+      --asphalt-dark: #232A32;
+      --lane: #E8E4DB;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      font-family: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .eyebrow {
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 12px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 6px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 0 0 4px;
+      letter-spacing: -.01em;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin: 0 0 20px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width:900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .panel h2 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      margin: 0 0 14px;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+      background: var(--asphalt-dark);
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    }
+
+    .mode-normal {
+      color: var(--signal-green);
+    }
+
+    .mode-emergency {
+      color: var(--emergency);
+    }
+
+    .controls {
+      margin-top: 16px;
+    }
+
+    .ctrl-group {
+      margin-bottom: 16px;
+    }
+
+    .ctrl-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .ctrl-label b {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: var(--panel-2);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .15s ease;
+      font-weight: 600;
+    }
+
+    button:hover {
+      border-color: var(--accent);
+    }
+
+    button:active {
+      transform: scale(.97);
+    }
+
+    button.emergency {
+      background: rgba(255, 59, 110, .12);
+      border-color: var(--emergency);
+      color: var(--emergency);
+    }
+
+    button.emergency:hover {
+      background: rgba(255, 59, 110, .2);
+    }
+
+    button:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    button.active-toggle {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .log {
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      background: var(--asphalt-dark);
+      border-radius: 8px;
+      padding: 12px;
+      height: 220px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column-reverse;
+    }
+
+    .log-entry {
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .04);
+      color: var(--text-muted);
+    }
+
+    .log-entry .t {
+      color: var(--text-dim);
+      margin-right: 8px;
+    }
+
+    .log-entry.hl {
+      color: var(--accent);
+    }
+
+    .log-entry.em {
+      color: var(--emergency);
+      font-weight: 600;
+    }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+
+<body>
+
+  <p class="eyebrow">EcoAI: Envision Future Life — TĐN Hackathon 2026'</p>
+  <h1>Smart Signal, Outliers - TĐN Hackathon 2026</h1>
+  <p class="subtitle">Tối ưu hóa thời gian đèn theo mật độ giao thông thời gian thực, có cơ chế ưu tiên xe khẩn cấp</p>
+
+  <div class="layout">
+
+    <div class="panel">
+      <h2>Mô Phỏng Giao Lộ</h2>
+      <canvas id="canvas" width="640" height="480"></canvas>
+      <div class="legend">
+        <div class="legend-item"><span class="dot" style="background:var(--signal-green)"></span>Đèn xanh</div>
+        <div class="legend-item"><span class="dot" style="background:var(--signal-amber)"></span>Đèn vàng</div>
+        <div class="legend-item"><span class="dot" style="background:var(--signal-red)"></span>Đèn đỏ</div>
+        <div class="legend-item"><span class="dot" style="background:var(--emergency)"></span>Xe ưu tiên</div>
+        <div class="legend-item"><span class="dot" style="background:var(--accent)"></span>Xe thường</div>
+        <div class="legend-item"><span class="dot" style="background:#FFC53D"></span>Xe chậm</div>
+        <div class="legend-item"><span class="dot" style="background:#2ED9A6"></span>Xe nhanh</div>
+      </div>
+      <p style="font-size:12px;color:var(--text-muted);margin:10px 0 0;">Vùng mờ trước mỗi đèn là <b
+          style="color:var(--text-primary);">vùng cảm biến</b> đã được mở rộng — AI đo mật độ, cộng thêm độ trễ phản xạ
+        của tài xế vào thời gian đèn xanh.</p>
+      <div class="stat-row">
+        <div class="stat">
+          <div class="stat-label">Chế độ</div>
+          <div class="stat-value" id="modeOut">BÌNH THƯỜNG</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Pha hiện tại</div>
+          <div class="stat-value" id="phaseOut" style="font-size:15px;">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Độ đầy vùng cảm biến — Bắc–Nam</div>
+          <div class="stat-value" id="queueNSOut">0%</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Độ đầy vùng cảm biến — Đông–Tây</div>
+          <div class="stat-value" id="queueEWOut">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h2>Điều Khiển Mô Phỏng</h2>
+        <div class="controls">
+          <div class="ctrl-group">
+            <div class="ctrl-label">Lưu lượng xe nền — Bắc–Nam <b id="rateNSVal">5</b></div>
+            <input type="range" id="rateNS" min="0" max="100" value="5" step="1">
+          </div>
+          <div class="ctrl-group">
+            <div class="ctrl-label">Lưu lượng xe nền — Đông–Tây <b id="rateEWVal">5</b></div>
+            <input type="range" id="rateEW" min="0" max="100" value="5" step="1">
+          </div>
+          <div class="ctrl-group">
+            <div class="ctrl-label" style="margin-bottom:8px;">Thêm xe thủ công — Bắc–Nam</div>
+            <div class="btn-row">
+              <button id="fastNS">Nhanh</button>
+              <button id="slowNS">Chậm</button>
+              <button class="emergency" id="emNS">Ưu tiên</button>
+            </div>
+          </div>
+          <div class="ctrl-group">
+            <div class="ctrl-label" style="margin-bottom:8px;">Thêm xe thủ công — Đông–Tây</div>
+            <div class="btn-row">
+              <button id="fastEW">Nhanh</button>
+              <button id="slowEW">Chậm</button>
+              <button class="emergency" id="emEW">Ưu tiên</button>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button id="resetBtn">Đặt lại mô phỏng</button>
+            <button id="pauseBtn">Tạm dừng</button>
+            <button id="speedBtn">Tốc độ: 1x</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:16px;">
+        <h2>Nhật Ký Quyết Định AI</h2>
+        <div class="log" id="logBox"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- Centralized Configuration ---
+    const CONFIG = {
+      W: 640,
+      H: 480,
+      ROAD_W: 90,
+      LANE_INNER: 24,
+      LANE_OUTER: 64,
+
+      // Timing Settings (seconds)
+      MIN_GREEN: 4,
+      BASE_GREEN: 6,
+      MAX_GREEN: 45,
+      YELLOW_T: 2,
+      ALLRED_T: 2,
+      EM_CLEAR_T: 2,
+
+      // Sensor Zone Parameters
+      ZONE_DEPTH: 140,
+      ZONE_CAPACITY: 35.0,
+      OCC_LERP_RATE: 4.0,
+      STOP_PROG: 0.40,
+
+      // Vehicle Characteristics (Aligned spacing: 25.2px equivalent progression units)
+      TYPE_FOOTPRINT: { normal: 1.5, fast: 1.0, slow: 2.5, emergency: 1.5 },
+      TYPE_SPEED: { normal: 0.095, fast: 0.155, slow: 0.050, emergency: 0.14 },
+      TYPE_LENGTH_PROG: { normal: 0.08, fast: 0.065, slow: 0.10, emergency: 0.08 }
+    };
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const CX = CONFIG.W / 2, CY = CONFIG.H / 2;
+
+    let rateNS = 5, rateEW = 5;
+    let queueNS = 3, queueEW = 3;
+    let occNS = 0.15, occEW = 0.15;
+    let paused = false;
+    let simSpeed = 1;
+
+    let phase = 'NS_GREEN';
+    let phaseTimer = 0;
+    let phaseDuration = CONFIG.BASE_GREEN;
+    let mode = 'NORMAL';
+    let emergencyDir = null;
+
+    let carsNS = [];
+    let carsEW = [];
+    let emergencyCar = null;
+
+    let totalSimSeconds = 0;
+    let emergencyFlashTimer = 0;
+    let spawnTimer = 0;
+
+    function log(msg, cls) {
+      const box = document.getElementById('logBox');
+      const el = document.createElement('div');
+      el.className = 'log-entry' + (cls ? ' ' + cls : '');
+      const totalSecs = Math.floor(totalSimSeconds);
+      const mm = String(Math.floor(totalSecs / 60)).padStart(2, '0');
+      const ss = String(totalSecs % 60).padStart(2, '0');
+      el.innerHTML = '<span class="t">[' + mm + ':' + ss + ']</span>' + msg;
+      box.prepend(el);
+      while (box.children.length > 60) box.removeChild(box.lastChild);
+    }
+
+    function computeGreen(myQ, otherQ) {
+      let baseExtra = (myQ - otherQ) * 1.2;
+      let congestionPenalty = myQ > 5 ? (myQ * 0.6) : 0;
+      let d = Math.round(CONFIG.BASE_GREEN + baseExtra + congestionPenalty);
+      return Math.max(CONFIG.MIN_GREEN, Math.min(CONFIG.MAX_GREEN, d));
+    }
+
+    function lightState(dir) {
+      if (mode === 'EMERGENCY') {
+        if (phase === 'EM_HOLD') return dir === emergencyDir ? 'green' : 'red';
+        return 'red';
+      }
+      switch (phase) {
+        case 'NS_GREEN': return dir === 'NS' ? 'green' : 'red';
+        case 'NS_YELLOW': return dir === 'NS' ? 'yellow' : 'red';
+        case 'EW_GREEN': return dir === 'EW' ? 'green' : 'red';
+        case 'EW_YELLOW': return dir === 'EW' ? 'yellow' : 'red';
+        default: return 'red';
+      }
+    }
+
+    function startEmergency(dir) {
+      if (mode === 'EMERGENCY') { log('Đã có xe ưu tiên đang xử lý, bỏ qua yêu cầu mới.', 'em'); return; }
+      mode = 'EMERGENCY';
+      emergencyDir = dir;
+      const dirLabel = dir === 'NS' ? 'Bắc–Nam' : 'Đông–Tây';
+      log('🚨 Phát hiện xe ưu tiên hướng ' + dirLabel + ' → Chờ xe đối diện đi qua trước khi kích hoạt.', 'em');
+
+      // Force lights to red for everyone else, and hold emergency car back
+      phase = 'EM_WAITING';
+      phaseTimer = 0;
+      phaseDuration = 999;
+
+      // Spawn emergency car slightly behind the stop line so it waits properly
+      const ec = { side: dir === 'NS' ? 'top' : 'left', prog: -0.15, type: 'emergency', lane: 1, speedMod: 0 };
+      if (dir === 'NS') carsNS.unshift(ec);
+      else carsEW.unshift(ec);
+      emergencyCar = ec;
+    }
+
+    function advanceTime(dt) {
+      phaseTimer += dt;
+
+      if (mode === 'EMERGENCY') {
+        if (phase === 'EM_WAITING') {
+          // Check if opposing cars are present in the intersection zone
+          const opposingCars = emergencyDir === 'NS' ? carsEW : carsNS;
+          const carsInIntersection = opposingCars.some(c => c.prog >= -0.1 && c.prog <= 0.8);
+
+          // DYNAMIC FIX: If no congestion/cross-traffic exists, skip the wait immediately!
+          if (!carsInIntersection || phaseTimer > 8.0) {
+            phase = 'EM_HOLD';
+            phaseTimer = 0;
+            if (emergencyCar) emergencyCar.speedMod = 2.0;
+            const dirLabel = emergencyDir === 'NS' ? 'Bắc–Nam' : 'Đông–Tây';
+
+            if (!carsInIntersection) {
+              log('Đường trống hoàn toàn. Xe ưu tiên hướng ' + dirLabel + ' phóng thẳng qua!', 'hl');
+            } else {
+              log('Hết thời gian chờ an toàn. Xe ưu tiên hướng ' + dirLabel + ' bắt đầu di chuyển!', 'hl');
+            }
+          }
+        }
+        return;
+      }
+
+      if (phaseTimer >= phaseDuration) {
+        phaseTimer = 0;
+        if (phase === 'NS_GREEN') { phase = 'NS_YELLOW'; phaseDuration = CONFIG.YELLOW_T; }
+        else if (phase === 'NS_YELLOW') { phase = 'ALL_RED'; phaseDuration = CONFIG.ALLRED_T; }
+        else if (phase === 'ALL_RED') {
+          phase = 'EW_GREEN';
+          phaseDuration = computeGreen(queueEW, queueNS);
+        }
+        else if (phase === 'EW_GREEN') { phase = 'EW_YELLOW'; phaseDuration = CONFIG.YELLOW_T; }
+        else if (phase === 'EW_YELLOW') { phase = 'ALL_RED2'; phaseDuration = CONFIG.ALLRED_T; }
+        else if (phase === 'ALL_RED2' || phase === 'ALL_RED') {
+          phase = 'NS_GREEN';
+          phaseDuration = computeGreen(queueNS, queueEW);
+        }
+      }
+    }
+
+    function computeOccupancyTarget(carList) {
+      let occupied = 0;
+      carList.forEach(c => {
+        // Only count cars strictly inside the sensor zone bounds
+        if (c.prog > -0.20 && c.prog <= 0.40) {
+          occupied += CONFIG.TYPE_FOOTPRINT[c.type] || 1.5;
+        }
+      });
+      // Soft-clamp using a logarithmic or safer linear ceiling ratio
+      let ratio = occupied / CONFIG.ZONE_CAPACITY;
+      return Math.max(0, Math.min(1, ratio));
+    }
+
+    function updateQueues(dt) {
+      const targetNS = computeOccupancyTarget(carsNS);
+      const targetEW = computeOccupancyTarget(carsEW);
+
+      occNS += (targetNS - occNS) * dt * CONFIG.OCC_LERP_RATE;
+      occEW += (targetEW - occEW) * dt * CONFIG.OCC_LERP_RATE;
+
+      queueNS = occNS * 30;
+      queueEW = occEW * 30;
+    }
+
+    function phaseLabel() {
+      if (mode === 'EMERGENCY') {
+        return phase === 'EM_CLEAR' ? 'Dọn giao lộ (all-red)' : 'Giữ xanh cho xe ưu tiên';
+      }
+      const map = {
+        NS_GREEN: 'Xanh Bắc–Nam', NS_YELLOW: 'Vàng Bắc–Nam', ALL_RED: 'Đỏ toàn bộ',
+        EW_GREEN: 'Xanh Đông–Tây', EW_YELLOW: 'Vàng Đông–Tây', ALL_RED2: 'Đỏ toàn bộ'
+      };
+      return map[phase] || phase;
+    }
+
+    function spawnCar(dir, type) {
+      const lane = Math.random() < 0.5 ? 1 : 2;
+      const speedMod = 0.8 + Math.random() * 0.4;
+
+      if (dir === 'NS') {
+        carsNS.push({ side: Math.random() < 0.5 ? 'top' : 'bottom', prog: -0.15, type, lane, speedMod });
+      } else {
+        carsEW.push({ side: Math.random() < 0.5 ? 'left' : 'right', prog: -0.15, type, lane, speedMod });
+      }
+    }
+
+    function stepCars(carList, go, dt) {
+      const sides = ['top', 'bottom', 'left', 'right'];
+      const lanes = [1, 2];
+
+      sides.forEach(side => {
+        lanes.forEach(lane => {
+          const laneCars = carList.filter(c => c.side === side && c.lane === lane);
+          if (laneCars.length === 0) return;
+
+          laneCars.sort((a, b) => b.prog - a.prog);
+
+          const laneHasEmergency = laneCars.some(c => c.type === 'emergency');
+          const isLaneWaitingEmergency = laneHasEmergency && mode === 'EMERGENCY' && phase === 'EM_WAITING';
+
+          laneCars.forEach((c, i) => {
+            // FIX: If waiting for cross-traffic, only hold normal cars at the stop line. 
+            // Let the emergency vehicle crawl up to the stop line instead of locking up the whole lane.
+            if (isLaneWaitingEmergency) {
+              if (c.type === 'emergency') {
+                // Allow emergency vehicle to move forward slowly up to the stop line (CONFIG.STOP_PROG) while waiting
+                if (c.prog >= CONFIG.STOP_PROG) {
+                  return; // Stop at the line
+                }
+              } else {
+                // Normal cars in the emergency lane behave according to normal red light rules until clearance
+                // (they stop at the line or behind the car ahead)
+              }
+            }
+
+            // Give cars ahead of a moving emergency vehicle a boost once cleared
+            if (laneHasEmergency && mode === 'EMERGENCY' && phase === 'EM_HOLD' && c.type !== 'emergency') {
+              const emIndex = laneCars.findIndex(el => el.type === 'emergency');
+              if (emIndex !== -1 && i < emIndex) {
+                c.speedMod = Math.min(5.0, c.speedMod + 1.2);
+              }
+            }
+
+            let laneGo = go;
+            if (mode === 'EMERGENCY') {
+              const isEmergencyLane = laneHasEmergency;
+              laneGo = (phase === 'EM_HOLD' && isEmergencyLane);
+            }
+
+            const speed = (CONFIG.TYPE_SPEED[c.type] || CONFIG.TYPE_SPEED.normal) * c.speedMod * dt;
+            let next = c.prog + speed;
+
+            if (c.type === 'emergency') {
+              if (isLaneWaitingEmergency) {
+                // Restrict emergency car from crossing the stop line during EM_WAITING
+                next = Math.min(next, CONFIG.STOP_PROG);
+              }
+              if (i > 0) {
+                const carAhead = laneCars[i - 1];
+                const safeGap = CONFIG.TYPE_LENGTH_PROG[carAhead.type] || CONFIG.TYPE_LENGTH_PROG.normal;
+                next = Math.min(next, carAhead.prog - safeGap);
+              }
+            } else {
+              if (!laneGo && c.prog <= CONFIG.STOP_PROG) {
+                if (i === 0) {
+                  next = Math.min(next, CONFIG.STOP_PROG);
+                } else {
+                  const carAhead = laneCars[i - 1];
+                  const safeGap = CONFIG.TYPE_LENGTH_PROG[carAhead.type] || CONFIG.TYPE_LENGTH_PROG.normal;
+                  let limit = Math.min(CONFIG.STOP_PROG, carAhead.prog - safeGap);
+                  next = Math.min(next, limit);
+                }
+              }
+
+              if (i > 0) {
+                const carAhead = laneCars[i - 1];
+                const safeGap = CONFIG.TYPE_LENGTH_PROG[carAhead.type] || CONFIG.TYPE_LENGTH_PROG.normal;
+                next = Math.min(next, carAhead.prog - safeGap);
+              }
+            }
+
+            c.prog = next;
+          });
+        });
+      });
+    }
+
+    function updateSimulation(dt) {
+      totalSimSeconds += dt;
+
+      advanceTime(dt);
+      updateQueues(dt);
+
+      spawnTimer += dt;
+      if (spawnTimer >= 0.25) {
+        if (Math.random() < rateNS / 100 && carsNS.length < 300) spawnCar('NS', 'normal');
+        if (Math.random() < rateEW / 100 && carsEW.length < 300) spawnCar('EW', 'normal');
+        spawnTimer = 0;
+      }
+
+      emergencyFlashTimer += dt * 8;
+
+      stepCars(carsNS, lightState('NS') === 'green', dt);
+      stepCars(carsEW, lightState('EW') === 'green', dt);
+
+      for (let i = carsNS.length - 1; i >= 0; i--) {
+        if (carsNS[i].prog >= 1.1) carsNS.splice(i, 1);
+      }
+      for (let i = carsEW.length - 1; i >= 0; i--) {
+        if (carsEW[i].prog >= 1.1) carsEW.splice(i, 1);
+      }
+
+      // Robust check: End emergency mode once the emergency car passes the intersection midpoint/clearance line (prog > 0.95)
+      if (emergencyCar && (emergencyCar.prog >= 0.95 || !carsNS.includes(emergencyCar) && !carsEW.includes(emergencyCar))) {
+        emergencyCar = null;
+        endEmergency();
+      }
+
+      document.getElementById('modeOut').textContent = mode === 'EMERGENCY' ? 'KHẨN CẤP' : 'BÌNH THƯỜNG';
+      document.getElementById('modeOut').className = 'stat-value ' + (mode === 'EMERGENCY' ? 'mode-emergency' : 'mode-normal');
+      document.getElementById('phaseOut').textContent = phaseLabel();
+      document.getElementById('queueNSOut').textContent = Math.round(occNS * 100) + '%';
+      document.getElementById('queueEWOut').textContent = Math.round(occEW * 100) + '%';
+    }
+
+    function endEmergency() {
+      log('Xe ưu tiên đã qua giao lộ. Trở lại chế độ tối ưu bình thường.', 'hl');
+      mode = 'NORMAL';
+      emergencyDir = null;
+      emergencyCar = null;
+      phase = 'ALL_RED';
+      phaseTimer = 0;
+      phaseDuration = CONFIG.ALLRED_T;
+    }
+
+    function draw() {
+      ctx.fillStyle = '#232A32';
+      ctx.fillRect(0, 0, CONFIG.W, CONFIG.H);
+      ctx.fillStyle = '#2A323C';
+      ctx.fillRect(CX - CONFIG.ROAD_W, 0, CONFIG.ROAD_W * 2, CONFIG.H);
+      ctx.fillRect(0, CY - CONFIG.ROAD_W, CONFIG.W, CONFIG.ROAD_W * 2);
+
+      ctx.strokeStyle = 'rgba(232,228,219,0.35)';
+      ctx.setLineDash([10, 10]);
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(CX, 0); ctx.lineTo(CX, CY - CONFIG.ROAD_W); ctx.moveTo(CX, CY + CONFIG.ROAD_W); ctx.lineTo(CX, CONFIG.H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, CY); ctx.lineTo(CX - CONFIG.ROAD_W, CY); ctx.moveTo(CX + CONFIG.ROAD_W, CY); ctx.lineTo(CONFIG.W, CY); ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(232,228,219,0.15)';
+      ctx.setLineDash([5, 10]);
+      ctx.beginPath(); ctx.moveTo(CX - 45, 0); ctx.lineTo(CX - 45, CY - CONFIG.ROAD_W); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(CX + 45, 0); ctx.lineTo(CX + 45, CY - CONFIG.ROAD_W); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(CX - 45, CY + CONFIG.ROAD_W); ctx.lineTo(CX - 45, CONFIG.H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(CX + 45, CY + CONFIG.ROAD_W); ctx.lineTo(CX + 45, CONFIG.H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, CY - 45); ctx.lineTo(CX - CONFIG.ROAD_W, CY - 45); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, CY + 45); ctx.lineTo(CX - CONFIG.ROAD_W, CY + 45); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(CX + CONFIG.ROAD_W, CY - 45); ctx.lineTo(CONFIG.W, CY - 45); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(CX + CONFIG.ROAD_W, CY + 45); ctx.lineTo(CONFIG.W, CY + 45); ctx.stroke();
+
+      ctx.setLineDash([]);
+
+      ctx.strokeStyle = '#E8E4DB'; ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(CX - CONFIG.ROAD_W, CY - CONFIG.ROAD_W - 2); ctx.lineTo(CX + CONFIG.ROAD_W, CY - CONFIG.ROAD_W - 2);
+      ctx.moveTo(CX - CONFIG.ROAD_W, CY + CONFIG.ROAD_W + 2); ctx.lineTo(CX + CONFIG.ROAD_W, CY + CONFIG.ROAD_W + 2);
+      ctx.moveTo(CX - CONFIG.ROAD_W - 2, CY - CONFIG.ROAD_W); ctx.lineTo(CX - CONFIG.ROAD_W - 2, CY + CONFIG.ROAD_W);
+      ctx.moveTo(CX + CONFIG.ROAD_W + 2, CY - CONFIG.ROAD_W); ctx.lineTo(CX + CONFIG.ROAD_W + 2, CY + CONFIG.ROAD_W);
+      ctx.stroke();
+
+      drawZone(CX - CONFIG.ROAD_W, CY - CONFIG.ROAD_W - CONFIG.ZONE_DEPTH, CONFIG.ROAD_W * 2, CONFIG.ZONE_DEPTH, occNS);
+      drawZone(CX - CONFIG.ROAD_W, CY + CONFIG.ROAD_W, CONFIG.ROAD_W * 2, CONFIG.ZONE_DEPTH, occNS);
+      drawZone(CX - CONFIG.ROAD_W - CONFIG.ZONE_DEPTH, CY - CONFIG.ROAD_W, CONFIG.ZONE_DEPTH, CONFIG.ROAD_W * 2, occEW);
+      drawZone(CX + CONFIG.ROAD_W, CY - CONFIG.ROAD_W, CONFIG.ZONE_DEPTH, CONFIG.ROAD_W * 2, occEW);
+
+      // FIX: Independent light time calculations per approach based on its own specific state/timing
+      drawApproachSignal(CX + CONFIG.ROAD_W + 22, CY - CONFIG.ROAD_W - 22, lightState('NS'), 'down', 'Bắc → Nam', 'NS');
+      drawApproachSignal(CX - CONFIG.ROAD_W - 22, CY + CONFIG.ROAD_W + 22, lightState('NS'), 'up', 'Nam → Bắc', 'NS');
+      drawApproachSignal(CX - CONFIG.ROAD_W - 22, CY - CONFIG.ROAD_W - 22, lightState('EW'), 'right', 'Tây → Đông', 'EW');
+      drawApproachSignal(CX + CONFIG.ROAD_W + 22, CY + CONFIG.ROAD_W + 22, lightState('EW'), 'left', 'Đông → Tây', 'EW');
+
+      carsNS.forEach(c => drawCarNS(c));
+      carsEW.forEach(c => drawCarEW(c));
+    }
+
+    function occupancyColor(o) {
+      if (o < 0.4) return `rgba(46, 217, 166, ${0.10 + o * 0.35})`;
+      if (o < 0.75) return `rgba(255, 197, 61, ${0.14 + o * 0.30})`;
+      return `rgba(255, 71, 87, ${0.16 + o * 0.30})`;
+    }
+
+    function drawZone(x, y, w, h, occ) {
+      ctx.fillStyle = occupancyColor(occ);
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, w, h);
+    }
+
+    function drawArrow(cx, cy, dir) {
+      const d = 20, s = 7;
+      ctx.fillStyle = 'rgba(232,228,219,0.9)';
+      ctx.beginPath();
+      if (dir === 'down') { ctx.moveTo(cx, cy + d); ctx.lineTo(cx - s, cy + d - s * 1.5); ctx.lineTo(cx + s, cy + d - s * 1.5); }
+      else if (dir === 'up') { ctx.moveTo(cx, cy - d); ctx.lineTo(cx - s, cy - d + s * 1.5); ctx.lineTo(cx + s, cy - d + s * 1.5); }
+      else if (dir === 'right') { ctx.moveTo(cx + d, cy); ctx.lineTo(cx + d - s * 1.5, cy - s); ctx.lineTo(cx + d - s * 1.5, cy + s); }
+      else if (dir === 'left') { ctx.moveTo(cx - d, cy); ctx.lineTo(cx - d + s * 1.5, cy - s); ctx.lineTo(cx - d + s * 1.5, cy + s); }
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // FIX: Calculate approach-specific independent time remaining
+    function getApproachTimeLeft(dir) {
+      if (mode === 'EMERGENCY') return '!!';
+
+      const isNSActive = (phase === 'NS_GREEN' || phase === 'NS_YELLOW');
+      const isEWActive = (phase === 'EW_GREEN' || phase === 'EW_YELLOW');
+
+      if (dir === 'NS') {
+        if (isNSActive) {
+          return Math.max(0, Math.ceil(phaseDuration - phaseTimer));
+        } else if (phase === 'ALL_RED') {
+          return Math.max(0, Math.ceil(phaseDuration - phaseTimer));
+        } else if (phase === 'EW_GREEN') {
+          // NS is red while EW is green; remaining NS red time is EW green remainder + yellow + allred
+          const ewGreenRem = phaseDuration - phaseTimer;
+          const yellowDur = CONFIG.YELLOW_T;
+          const allredDur = CONFIG.ALLRED_T;
+          return Math.max(0, Math.ceil(ewGreenRem + yellowDur + allredDur));
+        } else if (phase === 'EW_YELLOW') {
+          const ewYellowRem = phaseDuration - phaseTimer;
+          const allredDur = CONFIG.ALLRED_T;
+          return Math.max(0, Math.ceil(ewYellowRem + allredDur));
+        } else if (phase === 'ALL_RED2') {
+          return Math.max(0, Math.ceil(phaseDuration - phaseTimer));
+        }
+      } else {
+        if (isEWActive) {
+          return Math.max(0, Math.ceil(phaseDuration - phaseTimer));
+        } else if (phase === 'ALL_RED2') {
+          return Math.max(0, Math.ceil(phaseDuration - phaseTimer));
+        } else if (phase === 'NS_GREEN') {
+          const nsGreenRem = phaseDuration - phaseTimer;
+          const yellowDur = CONFIG.YELLOW_T;
+          const allredDur = CONFIG.ALLRED_T;
+          return Math.max(0, Math.ceil(nsGreenRem + yellowDur + allredDur));
+        } else if (phase === 'NS_YELLOW') {
+          const nsYellowRem = phaseDuration - phaseTimer;
+          const allredDur = CONFIG.ALLRED_T;
+          return Math.max(0, Math.ceil(nsYellowRem + allredDur));
+        } else if (phase === 'ALL_RED') {
+          return Math.max(0, Math.ceil(phaseDuration - phaseTimer));
+        }
+      }
+      return Math.max(0, Math.ceil(phaseDuration - phaseTimer));
+    }
+
+    function drawApproachSignal(x, y, state, arrowDir, label, dirKey) {
+      drawSignal(x, y, state);
+      drawArrow(x, y, arrowDir);
+
+      ctx.fillStyle = 'rgba(139,148,160,0.85)';
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'center';
+      const labelY = (arrowDir === 'down') ? y - 26 : (arrowDir === 'up') ? y + 30 : y + 28;
+      ctx.fillText(label, x, labelY);
+
+      let timeLeft = getApproachTimeLeft(dirKey);
+
+      ctx.fillStyle = state === 'red' ? '#FF4757' : state === 'yellow' ? '#FFC53D' : '#2ED9A6';
+      ctx.font = 'bold 16px monospace';
+
+      const timerY = (arrowDir === 'down') ? y - 42 : (arrowDir === 'up') ? y + 46 : (arrowDir === 'right') ? y + 44 : y + 44;
+      ctx.fillText(timeLeft, x, timerY);
+
+      ctx.textAlign = 'left';
+    }
+
+    function roundRectPath(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function drawVehicleV(x, y, w, h, color, facingDown, isEmergency) {
+      const rx = x - w / 2, ry = y - h / 2;
+      roundRectPath(rx, ry, w, h, 3);
+      ctx.fillStyle = color;
+      ctx.fill();
+
+      // Flashing emergency roof beacon effect
+      if (isEmergency) {
+        const flashState = Math.floor(emergencyFlashTimer) % 2 === 0;
+        ctx.fillStyle = flashState ? '#00FFFF' : '#FF0055'; // Cyan and Hot Pink flashing lights
+        ctx.fillRect(x - 4, y - 3, 8, 6);
+        ctx.shadowColor = flashState ? '#00FFFF' : '#FF0055';
+        ctx.shadowBlur = 10;
+      }
+
+      const wsH = h * 0.3;
+      const wsY = facingDown ? ry + 3 : ry + h - wsH - 3;
+      ctx.fillStyle = 'rgba(10,14,18,0.55)';
+      ctx.fillRect(rx + 2, wsY, w - 4, wsH);
+      ctx.fillStyle = 'rgba(10,14,18,0.75)';
+      ctx.fillRect(rx - 1.5, ry + 4, 3, h - 8);
+      ctx.fillRect(rx + w - 1.5, ry + 4, 3, h - 8);
+      ctx.fillStyle = 'rgba(255,236,180,0.9)';
+      const lightY = facingDown ? ry + h - 3 : ry + 3;
+      ctx.fillRect(rx + 2, lightY - 1.5, 3, 3);
+      ctx.fillRect(rx + w - 5, lightY - 1.5, 3, 3);
+      ctx.shadowBlur = 0; // Reset shadow
+    }
+
+    function drawVehicleH(x, y, w, h, color, facingRight, isEmergency) {
+      const rx = x - w / 2, ry = y - h / 2;
+      roundRectPath(rx, ry, w, h, 3);
+      ctx.fillStyle = color;
+      ctx.fill();
+
+      // Flashing emergency roof beacon effect
+      if (isEmergency) {
+        const flashState = Math.floor(emergencyFlashTimer) % 2 === 0;
+        ctx.fillStyle = flashState ? '#00FFFF' : '#FF0055';
+        ctx.fillRect(x - 3, y - 4, 6, 8);
+        ctx.shadowColor = flashState ? '#00FFFF' : '#FF0055';
+        ctx.shadowBlur = 10;
+      }
+
+      const wsW = w * 0.3;
+      const wsX = facingRight ? rx + w - wsW - 3 : rx + 3;
+      ctx.fillStyle = 'rgba(10,14,18,0.55)';
+      ctx.fillRect(wsX, ry + 2, wsW, h - 4);
+      ctx.fillStyle = 'rgba(10,14,18,0.75)';
+      ctx.fillRect(rx + 4, ry - 1.5, w - 8, 3);
+      ctx.fillRect(rx + 4, ry + h - 1.5, w - 8, 3);
+      ctx.fillStyle = 'rgba(255,236,180,0.9)';
+      const lightX = facingRight ? rx + w - 3 : rx + 3;
+      ctx.fillRect(lightX - 1.5, ry + 2, 3, 3);
+      ctx.fillRect(lightX - 1.5, ry + h - 5, 3, 3);
+      ctx.shadowBlur = 0; // Reset shadow
+    }
+
+    function drawSignal(x, y, state) {
+      ctx.fillStyle = '#0B0F14';
+      ctx.beginPath(); ctx.arc(x, y, 13, 0, 7); ctx.fill();
+      const colors = { red: '#FF4757', yellow: '#FFC53D', green: '#2ED9A6' };
+
+      const activeColor = colors[state] || '#3a4450';
+      ctx.fillStyle = activeColor;
+
+      if (colors[state]) {
+        ctx.shadowColor = activeColor;
+        ctx.shadowBlur = 8;
+      }
+
+      ctx.beginPath(); ctx.arc(x, y, 9, 0, 7); ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    function drawCarNS(c) {
+      const startY = c.side === 'top' ? -60 : CONFIG.H + 60;
+      const stopY = c.side === 'top' ? CY - CONFIG.ROAD_W - 30 : CY + CONFIG.ROAD_W + 30;
+      const endY = c.side === 'top' ? CY + CONFIG.ROAD_W + 40 : CY - CONFIG.ROAD_W - 40;
+      let y;
+      if (c.prog < 0.42) { y = startY + (stopY - startY) * ((c.prog + 0.15) / 0.57); }
+      else { const p2 = (c.prog - 0.42) / 0.58; y = stopY + (endY - stopY) * p2; }
+
+      const offset = c.lane === 1 ? CONFIG.LANE_INNER : CONFIG.LANE_OUTER;
+      const x = c.side === 'top' ? CX - offset : CX + offset;
+
+      const s = carStyleNS(c.type);
+      drawVehicleV(x, y, s.w, s.h, s.color, c.side === 'top', c.type === 'emergency');
+    }
+
+    // FIX: Adjusted physical height specs to prevent clipping overlaps against progression math
+    function carStyleNS(type) {
+      if (type === 'emergency') return { color: '#FF3B6E', w: 18, h: 26 };
+      if (type === 'fast') return { color: '#2ED9A6', w: 16, h: 20 };
+      if (type === 'slow') return { color: '#FFC53D', w: 22, h: 30 };
+      return { color: '#4FD1FF', w: 20, h: 24 };
+    }
+
+    function carStyleEW(type) {
+      if (type === 'emergency') return { color: '#FF3B6E', w: 26, h: 18 };
+      if (type === 'fast') return { color: '#2ED9A6', w: 20, h: 16 };
+      if (type === 'slow') return { color: '#FFC53D', w: 30, h: 22 };
+      return { color: '#7F77DD', w: 24, h: 20 };
+    }
+
+    function drawCarEW(c) {
+      const startX = c.side === 'left' ? -60 : CONFIG.W + 60;
+      const stopX = c.side === 'left' ? CX - CONFIG.ROAD_W - 30 : CX + CONFIG.ROAD_W + 30;
+      const endX = c.side === 'left' ? CX + CONFIG.ROAD_W + 40 : CX - CONFIG.ROAD_W - 40;
+      let x;
+      if (c.prog < 0.42) { x = startX + (stopX - startX) * ((c.prog + 0.15) / 0.57); }
+      else { const p2 = (c.prog - 0.42) / 0.58; x = stopX + (endX - stopX) * p2; }
+
+      const offset = c.lane === 1 ? CONFIG.LANE_INNER : CONFIG.LANE_OUTER;
+      const y = c.side === 'left' ? CY + offset : CY - offset;
+
+      const s = carStyleEW(c.type);
+      drawVehicleH(x, y, s.w, s.h, s.color, c.side === 'left', c.type === 'emergency');
+    }
+
+    document.getElementById('rateNS').addEventListener('input', e => {
+      rateNS = +e.target.value; document.getElementById('rateNSVal').textContent = rateNS;
+    });
+    document.getElementById('rateEW').addEventListener('input', e => {
+      rateEW = +e.target.value; document.getElementById('rateEWVal').textContent = rateEW;
+    });
+
+    document.getElementById('emNS').addEventListener('click', () => startEmergency('NS'));
+    document.getElementById('emEW').addEventListener('click', () => startEmergency('EW'));
+    document.getElementById('fastNS').addEventListener('click', () => { spawnCar('NS', 'fast'); log('Đã thêm 1 xe nhanh vào hướng Bắc–Nam.'); });
+    document.getElementById('slowNS').addEventListener('click', () => { spawnCar('NS', 'slow'); log('Đã thêm 1 xe chậm vào hướng Bắc–Nam.'); });
+    document.getElementById('fastEW').addEventListener('click', () => { spawnCar('EW', 'fast'); log('Đã thêm 1 xe nhanh vào hướng Đông–Tây.'); });
+    document.getElementById('slowEW').addEventListener('click', () => { spawnCar('EW', 'slow'); log('Đã thêm 1 xe chậm vào hướng Đông–Tây.'); });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      queueNS = 3; queueEW = 3; occNS = 0.15; occEW = 0.15; phase = 'NS_GREEN'; phaseTimer = 0; phaseDuration = CONFIG.BASE_GREEN;
+      mode = 'NORMAL'; emergencyDir = null; carsNS = []; carsEW = []; emergencyCar = null; totalSimSeconds = 0;
+      document.getElementById('logBox').innerHTML = '';
+      log('Mô phỏng đã được đặt lại.', 'hl');
+    });
+
+    document.getElementById('pauseBtn').addEventListener('click', function () {
+      paused = !paused;
+      this.textContent = paused ? 'Tiếp tục' : 'Tạm dừng';
+      if (paused) {
+        this.classList.add('active-toggle');
+      } else {
+        this.classList.remove('active-toggle');
+        lastTime = performance.now();
+      }
+    });
+
+    document.getElementById('speedBtn').addEventListener('click', function () {
+      simSpeed = simSpeed === 1 ? 2 : 1;
+      this.textContent = 'Tốc độ: ' + simSpeed + 'x';
+      if (simSpeed === 2) {
+        this.classList.add('active-toggle');
+      } else {
+        this.classList.remove('active-toggle');
+      }
+    });
+
+    log('Hệ thống khởi động. Bắt đầu ở chế độ Bình thường, ưu tiên Bắc–Nam.', 'hl');
+
+    let lastTime = performance.now();
+
+    // FIX: Clamped maximum frame step `dt` to prevent sub-stepping over gaps at 2x speeds
+    function loop(timestamp) {
+      let dt = (timestamp - lastTime) / 1000;
+      lastTime = timestamp;
+
+      if (dt > 0.05) dt = 0.05;
+
+      if (!paused) {
+        updateSimulation(dt * simSpeed);
+      }
+
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    requestAnimationFrame(loop);
+
+  </script>
+</body>
+
+</html>
