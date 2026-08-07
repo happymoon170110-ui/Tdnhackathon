@@ -24,7 +24,7 @@ A rapid AI integration project developed in 6 hours for TDNHackathon, deploying 
 
 ## Core Team & Contribution Breakdown
 * Nguyen Dang Minh - Team Leader, Lead AI Architect, and Co-Presenter
-    * Responsibilities: Engineered the entire core AI pipeline (YOLOv8 deployment, security camera feed processing, Zone Metrics calibration, and Singapore's Cosnos model integration); managed overall project strategy and delivered the final pitch.
+    * Responsibilities: Spearheaded the entire project development; engineered the core AI pipeline (YOLOv8 deployment, camera feed processing, and Singapore's Cosnos model integration); independently architecture the system integration post-hackathon to unify the web UI and simulation modules into a single framework
 * Nguyen Viet Hung - Web UI/UX Designer and Co-Presenter
     * Responsibilities: Architected the main web interface, designed custom feature modules, and integrated live external APIs for weather and road surface conditions.
 * Tran Huu Tho - Simulation Engineer (Part 2) and Co-Presenter
