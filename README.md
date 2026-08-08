@@ -3,7 +3,7 @@
 A rapid AI integration project developed in 6 hours for TDNHackathon, deploying global AI models via Google Colab, Claude, and Canva.
 
 ## Project Links and Demos
-* Technical AI Demo: [Open Google Colab Notebook](https://colab.research.google.com/drive/11XuAD01YEKeVBu8_yTFYaHdIftrxpoPY?usp=sharing)
+* Technical AI Demo: [Open Google Colab Notebook](https://colab.research.google.com/drive/1NH51SPexjWIF4Pr_QvDn9EYejZL0ueIo?usp=sharing)
 * Web UI and system prototype: [Open Web Demo Link](https://traffic-solver-platf-n27x.bolt.host)
    * Reviewer Account - Email: `smartsignal@outliers.com` | Password: `smartsignal#123`
 * Presentation and Pitch Deck: [View Canva Presentation](https://canva.link/s37759dz893h8yu)
