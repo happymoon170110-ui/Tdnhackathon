@@ -7,6 +7,21 @@ A rapid AI integration project developed in 6 hours for TDNHackathon, deploying 
 * Web UI and system prototype: [Open Web Demo Link](https://traffic-solver-platf-n27x.bolt.host)
    * Reviewer Account - Email: `smartsignal@outliers.com` | Password: `smartsignal#123`
 * Presentation and Pitch Deck: [View Canva Presentation](https://canva.link/s37759dz893h8yu)
+## 🚀 Quick Start & Demo Instructions
+Because the computer vision model requires backend computing resources to process traffic camera feeds in real-time, the AI engine must be initialized before using the Web UI.
+
+**Step 1: Initialize the AI Backend (Google Colab)**
+1. Open the **Technical AI Demo** (Google Colab Notebook) linked above.
+2. Click `Runtime` > `Run all` (or press `Ctrl + F9`) to install dependencies and start the YOLOv8 model.
+3. Scroll to the bottom of the notebook and wait for a public `gradio.live` URL to be generated. You can test the AI logic directly via this link.
+
+**Step 2: Experience the Web UI**
+1. Once the backend is running, open the **Web UI and System Prototype** link.
+2. Log in using the reviewer account provided above: 
+   * **Email:** `smartsignal@outliers.com`
+   * **Password:** `smartsignal#123`
+3. Navigate directly to tab **"Hệ Thống AI"** (AI System) on the navigation bar to experience the integrated dashboard.
+4. **Testing Tip:** You can download a sample traffic image, upload the image to the web, and click Phân tích ảnh and Tính đèn xanh. Now, explore it seemlessly.
 
 ## Project Overview and Methodology
 * Time Constraint: Built, tested, and finalized the prototype within a strict 6-hour limit under hackathon pressure.
