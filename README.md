@@ -20,7 +20,7 @@ Because the computer vision model requires backend computing resources to proces
 2. Log in using the reviewer account provided above: 
    * **Email:** `smartsignal@outliers.com`
    * **Password:** `smartsignal#123`
-3. Navigate directly to tab **"Hệ Thống AI"** (AI System) on the navigation bar to experience the integrated dashboard.
+3. 3. Make sure you reload the page or click f5 to reload. Then, navigate directly to tab **"Hệ Thống AI"** (AI System) on the navigation bar to experience the integrated dashboard.
 4. **Testing Tip:** You can download a sample traffic image, upload the image to the web, and click Phân tích ảnh and Tính đèn xanh. Now, explore it seemlessly.
 
 ## Project Overview and Methodology
