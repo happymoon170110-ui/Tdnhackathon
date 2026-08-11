@@ -39,7 +39,7 @@ Because the computer vision model requires backend computing resources to proces
 
 ## Core Team & Contribution Breakdown
 * Nguyen Dang Minh - Team Leader, Lead AI Architect, Vibe coder,and Co-Presenter
-    * Responsibilities: Spearheaded the entire project development; engineered the core AI pipeline (YOLOv8 deployment, camera feed processing, and Singapore's Cosnos model integration); independently architecture the system integration post-hackathon to unify the web UI and simulation modules into a single framework
+    * Responsibilities: Spearheaded the entire project development; engineered the core AI pipeline (YOLOv8 deployment, camera feed processing, and Singapore's Cosnos model integration); independently architected the system integration post-hackathon to unify the web UI and simulation modules into a single framework
 * Nguyen Viet Hung - Web UI/UX Designer, vibe coder, and Co-Presenter
     * Responsibilities: Architected the main web interface, designed custom feature modules, and integrated live external APIs for weather and road surface conditions.
 * Tran Huu Tho - Simulation Engineer (Part 2), vibe coder, and Co-Presenter
