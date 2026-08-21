@@ -7,7 +7,7 @@ A rapid AI integration project developed in 6 hours for TDNHackathon, deploying 
 * Web UI and system prototype: [Open Web Demo Link](https://smartsignaloutlier.netlify.app)
    * Reviewer Account - Email: `smartsignal@outliers.com` | Password: `smartsignal#123`
 * Presentation and Pitch Deck: [View Canva Presentation](https://canva.link/s37759dz893h8yu)
-## 🚀 Quick Start & Demo Instructions
+## Quick Start & Demo Instructions
 Because the computer vision model requires backend computing resources to process traffic camera feeds in real-time, the AI engine must be initialized before using the Web UI.
 
 **Step 1: Initialize the AI Backend (Google Colab)**
@@ -22,6 +22,32 @@ Because the computer vision model requires backend computing resources to proces
    * **Password:** `smartsignal#123`
 3. 3. Make sure you reload the page or click f5 to reload. Then, navigate directly to tab **"Hệ Thống AI"** (AI System) on the navigation bar to experience the integrated dashboard.
 4. **Testing Tip:** You can download a sample traffic image, upload the image to the web, and click Phân tích ảnh and Tính đèn xanh. Now, explore it seemlessly.
+## API-Driven System Architecture & Pipeline
+
+```mermaid
+graph TD
+    A[Traffic Camera Feed / Image Upload] -->|Real-time Stream| B(Backend: Google Colab)
+    B --> C{Core Multi-AI Pipeline}
+    C -->|API 1: Object Detection| D[YOLOv8 Local Inference]
+    C -->|Logic Layer| E[Zone Metric Classifier]
+    C -->|API 2: Adaptive Control| F[Singapore's Cosnos API]
+    
+    D -->|Bounding Boxes / Classes| E
+    E -->|Localized Congestion Matrix| F
+    F -->|Optimized Green Light Duration| G[Gradio API Endpoint]
+    G -->|JSON Response| H(Frontend Web UI Dashboard)
+```
+
+## API Integration & Spatial Metrics
+
+
+1. **Computer Vision Layer (YOLOv8):** Runs local inference to detect and classify heterogeneous vehicle streams, returning bounding box coordinates and object classes.
+2. **Zone Metric Matrix (Spatial Classifier):** 
+   - A custom logic layer that divides the intersection grid into distinct, weighted spatial zones (e.g., Queue Zone, Buffer Zone).
+   - Maps the bounding box coordinates into these specific matrices to calculate localized spatial density, moving beyond generic vehicle counting.
+3. **Adaptive Control (Cosnos API):** Ingests the computed Zone Metric Matrix via API calls to dynamically calculate and return optimized green light durations ($T_{green}$).
+4. **Asynchronous State Sync:** Pipelines the computed parameters from the Colab backend to the Frontend UI via Gradio endpoints with minimal latency.
+
 
 ## Project Overview and Methodology
 * Time Constraint: Built, tested, and finalized the prototype within a strict 6-hour limit under hackathon pressure.
@@ -36,15 +62,29 @@ Because the computer vision model requires backend computing resources to proces
 * AI Foundation: Anthropic Claude, Python AI ecosystem, Antigravity ADE, AI studio
 * Development Environment: Google Colab
 * Design and Presentation: Canva
+## Hackathon Constraints & Future Roadmap
+
+* **API-First Strategy:** Given the strict 6-hour limit, we strategically adopted an API-first approach—orchestrating pre-trained models and global APIs rather than training from scratch. This allowed us to deliver a fully functional, end-to-end prototype on time.
+* **Modular Scalability:** The pipeline is intentionally decoupled. The current API backbones can be seamlessly upgraded to customized, locally-trained models optimized specifically for mixed traffic environments without breaking the core architecture.
 
 ## Core Team & Contribution Breakdown
-* Nguyen Dang Minh - Team Leader, Lead AI Architect, Vibe coder,and Co-Presenter
-    * Responsibilities: Spearheaded the entire project development; engineered the core AI pipeline (YOLOv8 deployment, camera feed processing, and Singapore's Cosnos model integration); independently architected the system integration post-hackathon to unify the web UI and simulation modules into a single framework
-* Nguyen Viet Hung - Web UI/UX Designer, vibe coder, and Co-Presenter
-    * Responsibilities: Architected the main web interface, designed custom feature modules, and integrated live external APIs for weather and road surface conditions.
-* Tran Huu Tho - Simulation Engineer (Part 2), vibe coder, and Co-Presenter
-    * Responsibilities: Designed and developed the independent traffic congestion simulation system analyzing vehicle quantities versus velocity.
-* Du My Nghi - Researcher, Presentation Builder, and Co-Presenter
-    * Responsibilities: Conducted background research on traffic data, structured analytical findings, and co-built the presentation.
-* Nguyen Le Mai Anh - Researcher, Presentation Builder, and Co-Presenter
-    * Responsibilities: Conducted background research on smart city frameworks, compiled system documentation, and co-built the presentation.
+
+
+* **Nguyen Dang Minh** | *Team Leader & Lead AI System Architect*
+  * **Responsibilities:** Spearheaded overall project development; engineered the core API-driven AI pipeline (YOLOv8 deployment, camera feed processing, and spatial logic integration); architected the post-hackathon system integration to unify the web UI and simulation modules into a single framework.
+  
+* **Nguyen Viet Hung** | *Lead Web UI/UX Engineer*
+  * **Responsibilities:** Designed and engineered the main interactive web dashboard; developed custom feature modules and integrated live external APIs for real-time weather and road surface analytics.
+
+* **Tran Huu Tho** | *Simulation & Analytics Engineer*
+  * **Responsibilities:** Designed and developed the independent traffic congestion simulation module, establishing mathematical matrices to analyze vehicle density versus velocity vector fields.
+
+* **Du My Nghi** | *Research & Presentation Specialist*
+  * **Responsibilities:** Conducted deep-dive background research on localized traffic datasets; structured core analytical findings and co-authored the final pitch deck.
+
+* **Nguyen Le Mai Anh** | *Research & Documentation Specialist*
+  * **Responsibilities:** Researched global smart city integration frameworks; compiled system technical documentation and co-authored the final pitch deck.
+
+
+## Project Gallery & Proof of Concept
+*Check out our [Project Assets Folder](./assets) to view live demo screenshots, zone mapping visuals, team photos, and award certificates from the 6-hour sprint.*
