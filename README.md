@@ -21,7 +21,8 @@ Because the computer vision model requires backend computing resources to proces
    * **Email:** `smartsignal@outliers.com`
    * **Password:** `smartsignal#123`
 3. 3. Make sure you reload the page or click f5 to reload. Then, navigate directly to tab **"Hệ Thống AI"** (AI System) on the navigation bar to experience the integrated dashboard.
-4. **Testing Tip:** You can download a sample traffic image, upload the image to the web, and click Phân tích ảnh and Tính đèn xanh. Now, explore it seemlessly.
+4. **Testing Tip:** You can download the sample traffic images directly: [`System test.png`](./System%20test.png) or [`System test2.jpg`](./System%20test2.jpg), upload the image to the web, and click **Phân tích ảnh** and **Tính đèn xanh**. Now, explore it seamlessly.
+
 ## API-Driven System Architecture & Pipeline
 
 ```mermaid
